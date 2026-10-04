@@ -2,51 +2,44 @@ package io.github.schntgaispock.slimehud;
 
 
 
-import com.github.drakescraft_labs.labupdate.DrakesLabsReleaseUpdate;
 import javax.annotation.Nonnull;
 
 import io.github.schntgaispock.slimehud.placeholder.PlaceholderManager;
 import io.github.schntgaispock.slimehud.translation.TranslationManager;
 import io.github.schntgaispock.slimehud.waila.HudController;
+import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import org.bukkit.NamespacedKey;
-
-import dev.drake.infinitylib.core.AbstractAddon;
-import dev.drake.infinitylib.core.AddonConfig;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 import io.github.schntgaispock.slimehud.command.CommandManager;
 import io.github.schntgaispock.slimehud.waila.WAILAManager;
-import com.github.drakescraft_labs.slimefun4.libraries.dough.updater.BlobBuildUpdater;
 import lombok.Getter;
 
-public class SlimeHUD extends AbstractAddon {
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
 
-    @Getter AddonConfig playerData;
+public class SlimeHUD extends JavaPlugin implements SlimefunAddon {
+
+    @Getter YamlConfiguration playerData;
     static @Getter SlimeHUD instance;
     private HudController hudController;
     private TranslationManager translationManager;
 
-    public SlimeHUD() {
-        super("SchnTgaiSpock", "SlimeHUD", "master", "options.auto-update");
-    }
-
-
     @Override
-    public void enable() {
+    public void onEnable() {
         instance = this;
 
         getLogger().info("#=================================#");
         getLogger().info("#    SlimeHUD by SchnTgaiSpock    #");
         getLogger().info("#=================================#");
 
-        if (getConfig().getBoolean("options.auto-update")) {
-            if (getDescription().getVersion().startsWith("Dev - ")) {
-                new BlobBuildUpdater(this, getFile(), "SlimeHUD", "Dev").start();
-            } else {
-                getLogger().info("This is an unofficial build of SlimeHUD, so auto updates are disabled!");
-                getLogger().info("You can download the official build here: https://blob.build/project/SlimeHUD");
-            }
+        saveDefaultConfig();
+        File playerDataFile = new File(getDataFolder(), "player.yml");
+        if (!playerDataFile.exists()) {
+            saveResource("player.yml", false);
         }
-
-        playerData = new AddonConfig("player.yml");
+        playerData = YamlConfiguration.loadConfiguration(playerDataFile);
 
         WAILAManager.setup();
         CommandManager.setup();
@@ -56,9 +49,17 @@ public class SlimeHUD extends AbstractAddon {
     }
 
     @Override
-    public void disable() {
+    public void onDisable() {
         instance = null;
-        getPlayerData().save();
+        savePlayerData();
+    }
+
+    public void savePlayerData() {
+        try {
+            getPlayerData().save(new File(getDataFolder(), "player.yml"));
+        } catch (IOException exception) {
+            getLogger().warning("Could not save player HUD preferences: " + exception.getMessage());
+        }
     }
 
     public static HudController getHudController() {
@@ -71,5 +72,22 @@ public class SlimeHUD extends AbstractAddon {
 
     public static NamespacedKey newNamespacedKey(@Nonnull String name) {
         return new NamespacedKey(SlimeHUD.getInstance(), name);
+    }
+
+    public static void log(Level level, String message, String detail) {
+        SlimeHUD current = getInstance();
+        if (current != null) {
+            current.getLogger().log(level, message + " " + detail);
+        }
+    }
+
+    @Override
+    public JavaPlugin getJavaPlugin() {
+        return this;
+    }
+
+    @Override
+    public String getBugTrackerURL() {
+        return "https://github.com/DrakesCraft-Labs/SlimeHUD-drake/issues";
     }
 }
