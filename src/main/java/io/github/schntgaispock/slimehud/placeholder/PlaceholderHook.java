@@ -33,12 +33,20 @@ public class PlaceholderHook extends PlaceholderExpansion {
     }
 
     @Override
-    public @Nullable String onPlaceholderRequest(Player player, @Nonnull String params) {
+    public @Nullable String onPlaceholderRequest(@Nullable Player player, @Nonnull String params) {
+        // PlaceholderAPI passes a null player for global contexts (holograms, console, scoreboards)
+        if (player == null) {
+            return "";
+        }
+
         if (params.equalsIgnoreCase("toggle")) {
             return SlimeHUD.getInstance().getPlayerData().getString(player.getUniqueId() + ".waila", "true");
         } else if (params.startsWith("hud")) {
             String[] split = params.split("_");
             PlayerWAILA playerWAILA = wailaManager.getWailas().get(player.getUniqueId());
+            if (playerWAILA == null) {
+                return "";
+            }
             switch (split.length) {
                 case 1 -> {
                     return playerWAILA.getFacing();
