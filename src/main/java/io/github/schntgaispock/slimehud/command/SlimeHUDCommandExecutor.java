@@ -50,7 +50,10 @@ public class SlimeHUDCommandExecutor implements CommandExecutor {
                     SlimeHUD.getInstance().getPlayerData().set(uuid + ".waila", !wailaOn);
 
                     Map<UUID, PlayerWAILA> wailas = WAILAManager.getInstance().getWailas();
-                    wailas.get(uuid).setPaused(wailaOn);
+                    PlayerWAILA waila = wailas.get(uuid);
+                    if (waila != null) {
+                        waila.setPaused(wailaOn);
+                    }
 
                     SlimeHUD.getInstance().getPlayerData().save();
                     player.sendMessage("§a§lSlimeHUD§7> HUD toggled " + (wailaOn ? "§coff" : "§aon"));
