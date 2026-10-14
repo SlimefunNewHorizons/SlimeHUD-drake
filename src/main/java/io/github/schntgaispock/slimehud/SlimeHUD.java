@@ -2,7 +2,6 @@ package io.github.schntgaispock.slimehud;
 
 
 
-import com.github.drakescraft_labs.labupdate.DrakesLabsReleaseUpdate;
 import javax.annotation.Nonnull;
 
 import io.github.schntgaispock.slimehud.placeholder.PlaceholderManager;
