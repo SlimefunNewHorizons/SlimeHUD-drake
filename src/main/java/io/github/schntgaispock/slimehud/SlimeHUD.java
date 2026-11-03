@@ -88,6 +88,6 @@ public class SlimeHUD extends JavaPlugin implements SlimefunAddon {
 
     @Override
     public String getBugTrackerURL() {
-        return "https://github.com/DrakesCraft-Labs/SlimeHUD-drake/issues";
+        return "https://github.com/SlimefunNewHorizons/SlimeHUD-drake/issues";
     }
 }
